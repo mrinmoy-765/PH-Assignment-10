@@ -2,9 +2,10 @@ import React, { useState } from "react";
 import { AuthContext } from "../providers/AuthProvider";
 import { useContext } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const SignIn = () => {
-  const { signInUser, setUser } = useContext(AuthContext);
+  const { signInUser, setFirebaseUser, loading } = useContext(AuthContext);
   const [error, setError] = useState({});
   const location = useLocation();
   const navigate = useNavigate();
@@ -20,6 +21,10 @@ const SignIn = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const friendlyErrors = {
+    "auth/invalid-credential": "Invalid-Credential.",
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -31,16 +36,28 @@ const SignIn = () => {
     signInUser(email, password)
       .then((result) => {
         const user = result.user;
-        setUser(user);
+        if (loading) return <LoadingSpinner />;
+        setFirebaseUser(user);
         navigate(location?.state ? location.state : "/");
       })
       .catch((err) => {
-        setError({ ...error, login: err.code });
+        setError({
+          ...error,
+          login: friendlyErrors[err.code] || "Login failed.",
+        });
       });
 
     // clear fields after sign in
     e.target.reset();
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#2A2438]">
+        <LoadingSpinner />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#2A2438] px-4">
@@ -71,6 +88,10 @@ const SignIn = () => {
               onChange={handleChange}
             />
           </div>
+          {error.login && (
+            <p className="text-red-400 text-sm text-center">{error.login}</p>
+          )}
+
           <button
             type="submit"
             className="btn w-full mt-4 bg-[#DBD8E3] text-[#2A2438] hover:bg-[#cfcbd8]"

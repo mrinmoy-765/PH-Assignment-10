@@ -14,8 +14,9 @@ export const AuthContext = createContext();
 const auth = getAuth(app);
 
 const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [firebaseUser, setFirebaseUser] = useState(null);
+  const [mongoUser, setMongoUser] = useState(null);
 
   const createUser = (email, password) => {
     setLoading(true);
@@ -33,18 +34,32 @@ const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setLoading(false);
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setFirebaseUser(user);
+      if (user?.email) {
+        fetch(`http://localhost:5000/users?email=${user.email}`)
+          .then((res) => res.json())
+          .then((data) => {
+            setMongoUser(data);
+            setLoading(false);
+          })
+          .catch((err) => {
+            console.error("MongoDB user fetch error:", err);
+            setLoading(false);
+          });
+      } else {
+        setMongoUser(null);
+        setLoading(false);
+      }
     });
-    return () => {
-      unsubscribe();
-    };
+
+    return () => unsubscribe();
   }, []);
 
   const authValue = {
-    user,
-    setUser,
+    firebaseUser,
+    setFirebaseUser,
+    mongoUser,
     createUser,
     signInUser,
     logOut,

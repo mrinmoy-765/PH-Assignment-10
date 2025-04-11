@@ -28,12 +28,30 @@ async function run() {
 
     const userCollection = client.db("ChillGamer").collection("Users");
 
-    //insert data
+    //create User
     app.post("/users", async (req, res) => {
       const newUser = req.body;
       // console.log(newUser);
       const result = await userCollection.insertOne(newUser);
       res.send(result);
+    });
+
+    //get user by email retrived from firebase
+    app.get("/users", async (req, res) => {
+      try {
+        const email = req.query.email;
+        if (!email)
+          return res.status(400).send({ message: "Email is required" });
+
+        const user = await userCollection.findOne({ email }); // ✅ correct variable
+
+        if (!user) return res.status(404).send({ message: "User not found" });
+
+        res.send(user);
+      } catch (error) {
+        console.error("Error in /users route:", error);
+        res.status(500).send({ message: "Internal Server Error" });
+      }
     });
 
     // Send a ping to confirm a successful connection
