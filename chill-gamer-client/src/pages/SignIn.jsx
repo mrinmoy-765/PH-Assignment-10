@@ -1,6 +1,15 @@
 import React, { useState } from "react";
+import { AuthContext } from "../providers/AuthProvider";
+import { useContext } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 const SignIn = () => {
+  const { signInUser, setUser } = useContext(AuthContext);
+  const [error, setError] = useState({});
+  const location = useLocation();
+  const navigate = useNavigate();
+  // console.log(location);
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -17,8 +26,18 @@ const SignIn = () => {
     // Destructure formData values
     const { email, password } = formData;
 
-    // Call your sign in function here
-    console.log("Signing in with", email, password);
+    // Calling sign in function here
+    //console.log("Signing in with", email, password);
+    signInUser(email, password)
+      .then((result) => {
+        const user = result.user;
+        setUser(user);
+        navigate(location?.state ? location.state : "/");
+      })
+      .catch((err) => {
+        setError({ ...error, login: err.code });
+      });
+
     // clear fields after sign in
     e.target.reset();
   };
