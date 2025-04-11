@@ -1,6 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
+import { AuthContext } from "../providers/AuthProvider";
+import Swal from "sweetalert2";
 
 const Register = () => {
+  const { createUser } = useContext(AuthContext);
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -15,8 +19,52 @@ const Register = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
-    // You can call your authentication function here
+    // console.log("Form submitted:", formData);
+    // calling  authentication function here
+    const { name, email, photoURL, password } = formData;
+
+    // Firebase Auth - Only email & password
+    createUser(email, password)
+      .then((result) => {
+        console.log("Firebase user created:", result.user);
+        const createdAt = result?.user?.metadata?.creationTime;
+
+        // Prepare MongoDB user object
+        const newUser = {
+          name,
+          email,
+          photoURL,
+          createdAt,
+        };
+
+        // Send user to MongoDB
+        fetch("http://localhost:5000/users", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(newUser),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.insertedId) {
+              Swal.fire({
+                title: "Success!",
+                text: "Registration Successful",
+                icon: "success",
+                confirmButtonText: "OK",
+              }).then(() => {
+                window.location.href = "/SignIn";
+              });
+            }
+          });
+      })
+      .catch((error) => {
+        console.error("Firebase Error:", error);
+      });
+
+    // Optional: Clear form fields
+    e.target.reset();
   };
 
   return (
@@ -78,7 +126,7 @@ const Register = () => {
         </form>
         <p className="mt-6 text-center text-sm text-[#DBD8E3]">
           Already have an account?{" "}
-          <a href="/login" className="underline hover:text-white">
+          <a href="/signIn" className="underline hover:text-white">
             Login here
           </a>
         </p>

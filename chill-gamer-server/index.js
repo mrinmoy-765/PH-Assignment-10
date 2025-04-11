@@ -28,6 +28,14 @@ async function run() {
 
     const userCollection = client.db("ChillGamer").collection("Users");
 
+    //insert data
+    app.post("/users", async (req, res) => {
+      const newUser = req.body;
+      // console.log(newUser);
+      const result = await userCollection.insertOne(newUser);
+      res.send(result);
+    });
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
