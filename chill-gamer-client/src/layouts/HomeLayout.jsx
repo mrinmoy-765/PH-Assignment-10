@@ -1,5 +1,6 @@
 import React from "react";
 import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 
 const HomeLayout = () => {
   return (
@@ -8,7 +9,9 @@ const HomeLayout = () => {
         <Navbar></Navbar>
       </header>
       <main></main>
-      <footer></footer>
+      <footer>
+        <Footer></Footer>
+      </footer>
     </div>
   );
 };
