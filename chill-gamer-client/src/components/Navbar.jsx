@@ -25,7 +25,7 @@ const Navbar = () => {
         </NavLink>
       </li>
       <li>
-        <NavLink to="/reviews" className="hover:text-[#DBD8E3]">
+        <NavLink to="/allReviews" className="hover:text-[#DBD8E3]">
           All Reviews
         </NavLink>
       </li>
