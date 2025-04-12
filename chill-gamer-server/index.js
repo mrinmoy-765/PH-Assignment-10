@@ -27,6 +27,7 @@ async function run() {
     await client.connect();
 
     const userCollection = client.db("ChillGamer").collection("Users");
+    const reviewCollection = client.db("ChillGamer").collection("Reviews");
 
     //create User
     app.post("/users", async (req, res) => {
@@ -52,6 +53,14 @@ async function run() {
         console.error("Error in /users route:", error);
         res.status(500).send({ message: "Internal Server Error" });
       }
+    });
+
+    //create review
+    app.post("/reviews", async (req, res) => {
+      const newReview = req.body;
+      // console.log(newReview);
+      const result = await reviewCollection.insertOne(newReview);
+      res.send(result);
     });
 
     // Send a ping to confirm a successful connection

@@ -1,7 +1,7 @@
 import React, { useContext, useState } from "react";
-import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { AuthContext } from "../providers/AuthProvider";
+import { toast, ToastContainer } from "react-toastify";
 
 const AddReview = () => {
   const { mongoUser } = useContext(AuthContext);
@@ -31,23 +31,38 @@ const AddReview = () => {
       rating: Number(formData.rating),
       year: Number(formData.year),
       email: mongoUser?.email,
-      name: mongoUser?.displayName,
+      name: mongoUser?.name,
     };
 
+    console.log("Submitting review:", review);
+
     try {
-      console.log("Submitting review:", review);
-      toast.success("Review submitted successfully!");
-      setFormData({
-        coverUrl: "",
-        title: "",
-        description: "",
-        rating: "",
-        year: "",
-        genre: "",
+      const res = await fetch("http://localhost:5000/reviews", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(review),
       });
-    } catch (err) {
-      toast.error("Failed to submit review");
-      console.log(err);
+
+      const data = await res.json();
+
+      if (data.insertedId) {
+        toast.success("Review submitted successfully!");
+        setFormData({
+          coverUrl: "",
+          title: "",
+          description: "",
+          rating: "",
+          year: "",
+          genre: "",
+        });
+      } else {
+        toast.error("Failed to submit review.");
+      }
+    } catch (error) {
+      console.error("Error submitting review:", error);
+      toast.error("An error occurred while submitting.");
     }
   };
 
@@ -194,6 +209,9 @@ const AddReview = () => {
           >
             Submit Review
           </button>
+
+          {/* Toast Container */}
+          <ToastContainer position="top-right" autoClose={3000} />
         </div>
       </form>
     </div>
