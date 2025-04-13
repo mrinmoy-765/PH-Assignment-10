@@ -90,6 +90,30 @@ async function run() {
       res.send(result);
     });
 
+    // Update review
+    app.put("/reviews/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const updatedReview = req.body;
+
+      console.log("Updating Review with filter:", filter);
+      console.log("New data:", updatedReview);
+
+      const updateDoc = {
+        $set: {
+          coverUrl: updatedReview.coverUrl,
+          title: updatedReview.title,
+          description: updatedReview.description,
+          rating: updatedReview.rating,
+          year: updatedReview.year,
+          genre: updatedReview.genre,
+        },
+      };
+
+      const result = await reviewCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    });
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(

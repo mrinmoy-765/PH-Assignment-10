@@ -36,7 +36,6 @@ const SignIn = () => {
     signInUser(email, password)
       .then((result) => {
         const user = result.user;
-        if (loading) return <LoadingSpinner />;
         setFirebaseUser(user);
         navigate(location?.state ? location.state : "/");
       })

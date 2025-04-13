@@ -1,18 +1,23 @@
 import React, { useContext } from "react";
 import { AuthContext } from "../providers/AuthProvider";
+import { Link } from "react-router-dom";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const MyReviews = () => {
-  const { userReview } = useContext(AuthContext);
-
-  const handleEdit = (reviewId) => {
-    // Implement edit logic here
-    console.log("Edit review:", reviewId);
-  };
+  const { userReview, loading } = useContext(AuthContext);
 
   const handleDelete = (reviewId) => {
     // Implement delete logic here
     console.log("Delete review:", reviewId);
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#2A2438]">
+        <LoadingSpinner />
+      </div>
+    );
+  }
 
   return (
     <div className="p-4">
@@ -45,12 +50,12 @@ const MyReviews = () => {
                     {review.rating}
                   </td>
                   <td className="border border-white px-4 py-2 text-center">
-                    <button
-                      onClick={() => handleEdit(review._id)}
-                      className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded mr-2"
+                    <Link
+                      to={`/updateReview/${review._id}`}
+                      className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded mr-2 inline-block"
                     >
                       Edit
-                    </button>
+                    </Link>
                     <button
                       onClick={() => handleDelete(review._id)}
                       className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
