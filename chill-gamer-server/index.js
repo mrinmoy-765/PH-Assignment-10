@@ -78,6 +78,18 @@ async function run() {
       res.send(result);
     });
 
+    //get logged in users all reviews
+    app.get("/reviewsByEmail", async (req, res) => {
+      const email = req.query.email;
+      if (!email) {
+        return res.status(400).send({ error: "Email is required" });
+      }
+
+      const query = { email: email };
+      const result = await reviewCollection.find(query).toArray();
+      res.send(result);
+    });
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(

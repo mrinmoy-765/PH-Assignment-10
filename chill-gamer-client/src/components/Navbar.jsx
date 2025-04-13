@@ -1,6 +1,6 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useContext } from "react";
-import { AuthContext } from "../providers/AuthProvider"; // adjust path as needed
+import { AuthContext } from "../providers/AuthProvider";
 import Swal from "sweetalert2";
 
 const Navbar = () => {

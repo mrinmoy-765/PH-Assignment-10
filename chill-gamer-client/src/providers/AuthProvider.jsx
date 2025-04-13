@@ -17,6 +17,7 @@ const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [firebaseUser, setFirebaseUser] = useState(null);
   const [mongoUser, setMongoUser] = useState(null);
+  const [userReview, setUserReview] = useState(null);
 
   const createUser = (email, password) => {
     setLoading(true);
@@ -41,6 +42,14 @@ const AuthProvider = ({ children }) => {
           .then((res) => res.json())
           .then((data) => {
             setMongoUser(data);
+
+            // Fetch reviews created by the user
+            fetch(`http://localhost:5000/reviewsByEmail?email=${user.email}`)
+              .then((res) => res.json())
+              .then((reviewData) => {
+                setUserReview(reviewData); // This will now hold user's reviews
+              });
+
             setLoading(false);
           })
           .catch((err) => {
@@ -49,6 +58,7 @@ const AuthProvider = ({ children }) => {
           });
       } else {
         setMongoUser(null);
+        setUserReview(null);
         setLoading(false);
       }
     });
@@ -60,6 +70,7 @@ const AuthProvider = ({ children }) => {
     firebaseUser,
     setFirebaseUser,
     mongoUser,
+    userReview,
     createUser,
     signInUser,
     logOut,
