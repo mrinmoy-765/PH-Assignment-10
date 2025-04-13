@@ -46,7 +46,8 @@ const UpdateReview = () => {
           // alert("Review updated successfully!");
           // navigate("/myReviews");
         } else {
-          alert("No changes were made.");
+          //alert("No changes were made.");
+          Swal.fire("No changes were made");
         }
       })
       .catch((err) => {
