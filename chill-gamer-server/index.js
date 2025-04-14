@@ -28,6 +28,7 @@ async function run() {
 
     const userCollection = client.db("ChillGamer").collection("Users");
     const reviewCollection = client.db("ChillGamer").collection("Reviews");
+    const watchListCollection = client.db("ChillGamer").collection("WatchList");
 
     //create User
     app.post("/users", async (req, res) => {
@@ -120,6 +121,57 @@ async function run() {
       const query = { _id: new ObjectId(id) };
       const result = await reviewCollection.deleteOne(query);
       res.send(result);
+    });
+
+    // Check if in watchlist - MODIFIED
+    app.get("/watchlist/check", async (req, res) => {
+      try {
+        const { reviewId, userEmail } = req.query;
+        if (!reviewId || !userEmail) {
+          return res
+            .status(400)
+            .json({ message: "Missing reviewId or userEmail query parameter" });
+        }
+
+        const exists = await watchListCollection.findOne({
+          reviewId,
+          userEmail,
+        });
+
+        if (exists) {
+          res.status(200).json({ exists: true });
+        } else {
+          res.status(200).json({ exists: false });
+        }
+      } catch (error) {
+        console.error("Error checking watchlist:", error);
+        res
+          .status(500)
+          .json({ message: "Internal server error while checking watchlist" });
+      }
+    });
+
+    app.post("/watchlist", async (req, res) => {
+      try {
+        const newItem = req.body;
+        if (!newItem.reviewId || !newItem.userEmail) {
+          return res
+            .status(400)
+            .json({ message: "Missing required fields for watchlist item" });
+        }
+        const result = await watchListCollection.insertOne(newItem);
+        res.status(201).json({ insertedId: result.insertedId });
+      } catch (error) {
+        console.error("Error adding to watchlist:", error);
+        if (error.code === 11000) {
+          return res
+            .status(409)
+            .json({ message: "Item already exists in watchlist." });
+        }
+        res
+          .status(500)
+          .json({ message: "Internal server error while adding to watchlist" });
+      }
     });
 
     // Send a ping to confirm a successful connection

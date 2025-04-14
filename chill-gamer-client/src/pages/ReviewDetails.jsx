@@ -1,13 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { useParams } from "react-router-dom";
 import Swal from "sweetalert2";
-import { useContext } from "react";
 import { AuthContext } from "../providers/AuthProvider";
 
 const ReviewDetails = () => {
   const { id } = useParams();
   const [review, setReview] = useState(null);
-  const { firebaseUser, mongoUser } = useContext(AuthContext); // Get logged-in user
+  const { firebaseUser, mongoUser } = useContext(AuthContext);
 
   useEffect(() => {
     fetch(`http://localhost:5000/reviews/${id}`)
@@ -22,33 +21,47 @@ const ReviewDetails = () => {
       return;
     }
 
-    const watchlistItem = {
-      reviewId: review._id,
-      title: review.title,
-      coverUrl: review.coverUrl,
-      rating: review.rating,
-      genre: review.genre,
-      description: review.description,
-      reviewerName: review.name,
-      reviewerEmail: review.email,
-      userEmail: mongoUser.email,
-      userName: mongoUser.name,
-    };
-
-    fetch("http://localhost:5000/watchlist", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(watchlistItem),
-    })
+    fetch(
+      `http://localhost:5000/watchlist/check?userEmail=${mongoUser.email}&reviewId=${review._id}`
+    )
       .then((res) => res.json())
       .then((data) => {
-        if (data.insertedId) {
-          Swal.fire("Added to Watchlist!", "", "success");
+        if (data.exists) {
+          Swal.fire("Already in Watchlist!", "", "info");
         } else {
-          Swal.fire("Something went wrong!", "", "error");
+          const watchlistItem = {
+            reviewId: review._id,
+            title: review.title,
+            coverUrl: review.coverUrl,
+            rating: review.rating,
+            genre: review.genre,
+            description: review.description,
+            reviewerName: review.name,
+            reviewerEmail: review.email,
+            userEmail: mongoUser.email,
+            userName: mongoUser.name,
+          };
+
+          fetch("http://localhost:5000/watchlist", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(watchlistItem),
+          })
+            .then((res) => res.json())
+            .then((data) => {
+              if (data.insertedId) {
+                Swal.fire("Added to Watchlist!", "", "success");
+              } else {
+                Swal.fire("Something went wrong!", "", "error");
+              }
+            });
         }
+      })
+      .catch((err) => {
+        console.error("Watchlist check failed:", err);
+        Swal.fire("Error checking watchlist", "", "error");
       });
   };
 
