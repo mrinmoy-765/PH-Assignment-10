@@ -174,6 +174,32 @@ async function run() {
       }
     });
 
+    //get logged in users watchList
+    app.get("/watchListByEmail", async (req, res) => {
+      const email = req.query.email;
+      if (!email) {
+        return res.status(400).send({ error: "Email is required" });
+      }
+
+      try {
+        const result = await watchListCollection
+          .find({ userEmail: email })
+          .toArray();
+        res.send(result);
+      } catch (error) {
+        console.error("Failed to fetch watchlist:", error);
+        res.status(500).send({ error: "Internal server error" });
+      }
+    });
+
+    //remove from watchList
+    app.delete("/watchList/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await watchListCollection.deleteOne(query);
+      res.send(result);
+    });
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(

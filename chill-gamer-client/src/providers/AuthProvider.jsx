@@ -18,6 +18,7 @@ const AuthProvider = ({ children }) => {
   const [firebaseUser, setFirebaseUser] = useState(null);
   const [mongoUser, setMongoUser] = useState(null);
   const [userReview, setUserReview] = useState(null);
+  const [watchList, setWatchList] = useState(null);
 
   const createUser = (email, password) => {
     setLoading(true);
@@ -51,6 +52,15 @@ const AuthProvider = ({ children }) => {
               });
 
             setLoading(false);
+
+            // Fetch watchList created by the user
+            fetch(`http://localhost:5000/watchListByEmail?email=${user.email}`)
+              .then((res) => res.json())
+              .then((watchListData) => {
+                setWatchList(watchListData);
+              });
+
+            setLoading(false);
           })
           .catch((err) => {
             console.error("MongoDB user fetch error:", err);
@@ -59,6 +69,7 @@ const AuthProvider = ({ children }) => {
       } else {
         setMongoUser(null);
         setUserReview(null);
+        setWatchList(null);
         setLoading(false);
       }
     });
@@ -71,6 +82,7 @@ const AuthProvider = ({ children }) => {
     setFirebaseUser,
     mongoUser,
     userReview,
+    watchList,
     createUser,
     signInUser,
     logOut,

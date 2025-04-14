@@ -8,6 +8,7 @@ import AllReviews from "../pages/AllReviews";
 import ReviewDetails from "../pages/ReviewDetails";
 import MyReviews from "../pages/MyReviews";
 import UpdateReview from "../pages/UpdateReview";
+import MyWatchList from "../pages/MyWatchList";
 
 const router = createBrowserRouter([
   {
@@ -40,6 +41,10 @@ const router = createBrowserRouter([
         element: <UpdateReview></UpdateReview>,
         loader: ({ params }) =>
           fetch(`http://localhost:5000/reviews/${params.id}`),
+      },
+      {
+        path: "/watchlist",
+        element: <MyWatchList></MyWatchList>,
       },
     ],
   },
