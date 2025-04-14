@@ -200,6 +200,21 @@ async function run() {
       res.send(result);
     });
 
+    // Get highest rated games (rating > 6, limit to 6)
+    app.get("/highestRated", async (req, res) => {
+      try {
+        const result = await reviewCollection
+          .find({ rating: { $gt: 6 } })
+          .sort({ rating: -1 })
+          .limit(6)
+          .toArray();
+        res.send(result);
+      } catch (error) {
+        console.error("Error fetching highest rated games:", error);
+        res.status(500).send({ error: "Internal Server Error" });
+      }
+    });
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
